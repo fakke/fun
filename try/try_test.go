@@ -49,13 +49,13 @@ var isqrtTry = func(a int) Try[int] {
 }
 
 func TestOf(t *testing.T) {
-	assert.Equal(t, Of(idiv(10, 2)), Success(5))
-	assert.Equal(t, Of(idiv(10, 0)), Failure[int](errDivZero))
+	assert.Equal(t, Success(5), Of(idiv(10, 2)))
+	assert.Equal(t, Failure[int](errDivZero), Of(idiv(10, 0)))
 }
 
 func TestResult(t *testing.T) {
-	assert.Equal(t, Success(izero()), Success(0))
-	assert.Equal(t, Success(imul10(3)), Success(30))
+	assert.Equal(t, Success(0), Success(izero()))
+	assert.Equal(t, Success(30), Success(imul10(3)))
 }
 
 func TestError(t *testing.T) {
@@ -75,8 +75,8 @@ func TestResult_Error(t *testing.T) {
 }
 
 func TestResult_Result(t *testing.T) {
-	assert.Equal(t, idivTry(10, 5), Success(2))
-	assert.Equal(t, atoiTry("42"), Success(42))
+	assert.Equal(t, Success(2), idivTry(10, 5))
+	assert.Equal(t, Success(42), atoiTry("42"))
 }
 
 func TestResult_IsError(t *testing.T) {
@@ -93,7 +93,7 @@ func TestResult_ResultOr(t *testing.T) {
 }
 
 func TestErr_Error(t *testing.T) {
-	assert.Equal(t, idivTry(0, 0).Error(), errors.New("division by zero"))
+	assert.Equal(t, errors.New("division by zero"), idivTry(0, 0).Error())
 }
 
 func TestErr_IsError(t *testing.T) {
@@ -116,30 +116,30 @@ func TestErr_Result(t *testing.T) {
 }
 
 func TestErr_ResultOr(t *testing.T) {
-	assert.Equal(t, idivTry(0, 0).ValueOr(42), 42)
-	assert.Equal(t, atoiTry("").ValueOr(42), 42)
+	assert.Equal(t, 42, idivTry(0, 0).ValueOr(42))
+	assert.Equal(t, 42, atoiTry("").ValueOr(42))
 }
 
 func TestFoldL(t *testing.T) {
-	assert.Equal(t, FoldL(Success(42), "", itoa), "42")
-	assert.Equal(t, FoldL(Failure[int](errTest), "", itoa), "")
-	assert.Equal(t, FoldL(Success("hello"), 0, strlen), 5)
-	assert.Equal(t, FoldL(Failure[string](errTest), 0, strlen), 0)
+	assert.Equal(t, "42", FoldL(Success(42), "", itoa))
+	assert.Equal(t, "", FoldL(Failure[int](errTest), "", itoa))
+	assert.Equal(t, 5, FoldL(Success("hello"), 0, strlen))
+	assert.Equal(t, 0, FoldL(Failure[string](errTest), 0, strlen))
 }
 
 func TestFoldR(t *testing.T) {
-	assert.Equal(t, FoldR(Success(42), sempty, itoa), "42")
-	assert.Equal(t, FoldR(Failure[int](errTest), sempty, itoa), "")
-	assert.Equal(t, FoldR(Success("hello"), izero, strlen), len("hello"))
-	assert.Equal(t, FoldR(Failure[string](errTest), izero, strlen), 0)
+	assert.Equal(t, "42", FoldR(Success(42), sempty, itoa))
+	assert.Equal(t, "", FoldR(Failure[int](errTest), sempty, itoa))
+	assert.Equal(t, len("hello"), FoldR(Success("hello"), izero, strlen))
+	assert.Equal(t, 0, FoldR(Failure[string](errTest), izero, strlen))
 }
 
 func TestBind(t *testing.T) {
-	assert.Equal(t, Bind(Success(4), isqrtTry), Success(2))
-	assert.Equal(t, Bind(Success(-4), isqrtTry), Failure[int](errDomain))
+	assert.Equal(t, Success(2), Bind(Success(4), isqrtTry))
+	assert.Equal(t, Failure[int](errDomain), Bind(Success(-4), isqrtTry))
 }
 
 func TestMap(t *testing.T) {
-	assert.Equal(t, Map(Success(42), imul10), Success(420))
-	assert.Equal(t, Map(Success(42), itoa), Success("42"))
+	assert.Equal(t, Success(420), Map(Success(42), imul10))
+	assert.Equal(t, Success("42"), Map(Success(42), itoa))
 }

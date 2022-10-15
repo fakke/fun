@@ -6,9 +6,9 @@ func Chain[X any](fs ...func(X) X) func(X) X {
 	return slice.FoldL(fs[1:], fs[0], Compose[X, X, X])
 }
 
-func Compose[X, Y, Z any](f func(X) Y, g func(Y) Z) func(X) Z {
+func Compose[X, Y, Z any](fxy func(X) Y, fyz func(Y) Z) func(X) Z {
 	return func(x X) Z {
-		return g(f(x))
+		return fyz(fxy(x))
 	}
 }
 

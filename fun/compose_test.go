@@ -32,27 +32,35 @@ var atoi = func(s string) int {
 }
 
 func TestChain(t *testing.T) {
-	assert.Equal(t, Chain(add5, add5, add5)(10), 25)
-	assert.Equal(t, Chain(mul10, add5, add5)(10), 110)
-	assert.Equal(t, Chain(add5, mul10, div3)(10), 50)
+	assert.Equal(t, 25, Chain(add5, add5, add5)(10))
+	assert.Equal(t, 110, Chain(mul10, add5, add5)(10))
+	assert.Equal(t, 50, Chain(add5, mul10, div3)(10))
 }
 
 func TestCompose(t *testing.T) {
-	assert.Equal(t, Compose(mul10, add5)(10), 105)
-	assert.Equal(t, Compose(add5, mul10)(10), 150)
-	assert.Equal(t, Compose(atoi, add5)("10"), 15)
+	assert.Equal(t, 105, Compose(mul10, add5)(10))
+	assert.Equal(t, 150, Compose(add5, mul10)(10))
+	assert.Equal(t, 15, Compose(atoi, add5)("10"))
 }
 
 func TestCompose2(t *testing.T) {
-	assert.Equal(t, Compose2(mul10, add5)(10), 105)
-	assert.Equal(t, Compose2(add5, mul10)(10), 150)
-	assert.Equal(t, Compose2(atoi, add5)("10"), 15)
+	assert.Equal(t, 105, Compose2(mul10, add5)(10))
+	assert.Equal(t, 150, Compose2(add5, mul10)(10))
+	assert.Equal(t, 15, Compose2(atoi, add5)("10"))
 }
 
 func TestCompose3(t *testing.T) {
-	assert.Equal(t, Compose3(fmulpi, ftoi, itoa)(10), "31")
+	assert.Equal(t, "31", Compose3(fmulpi, ftoi, itoa)(10))
 }
 
 func TestCompose4(t *testing.T) {
-	assert.Equal(t, Compose4(fmulpi, ftoa, atof, mul7i)(10), 219)
+	assert.Equal(t, 219, Compose4(fmulpi, ftoa, atof, mul7i)(10))
+}
+
+func TestComposeAny(t *testing.T) {
+	//f1 := func(x float32) int { return 1 }
+	//f2 := func(x int) string { return "2" }
+	fs := make([]func(any) any, 2, 2)
+	assert.Equal(t, len(fs), 2)
+	//assert.Equal(t, 219, Compose4(fmulpi, ftoa, atof, mul7i)(10))
 }

@@ -121,21 +121,25 @@ func (a *array[V]) RemoveAt(i int) {
 }
 
 // Map creates an array of B with values mapped via f
-func Map[A, B any](a Traversable[A], f func(A) B) Array[B] {
-	if arr, isArray := a.(Array[A]); isArray {
-		return mapArray(arr, f)
-	} else {
-		return mapTraversable(a, f)
+func Map[A, B any](f func(A) B) func(a Traversable[A]) Array[B] {
+	return func(a Traversable[A]) Array[B] {
+		if arr, isArray := a.(Array[A]); isArray {
+			return mapArray(f)(arr)
+		} else {
+			return mapTraversable(a, f)
+		}
 	}
 }
 
 // mapArray implements Map optimized for Array
-func mapArray[A, B any](a Array[A], f func(A) B) Array[B] {
-	b := OfSize[B](a.Len(), a.Cap())
-	a.ForEachIndexed(func(i int, v A) {
-		b.SetAt(i)(f(v))
-	})
-	return b
+func mapArray[A, B any](f func(A) B) func(a Array[A]) Array[B] {
+	return func(a Array[A]) Array[B] {
+		b := OfSize[B](a.Len(), a.Cap())
+		a.ForEachIndexed(func(i int, v A) {
+			b.SetAt(i)(f(v))
+		})
+		return b
+	}
 }
 
 // mapTraversable implements Map optimized for Traversable

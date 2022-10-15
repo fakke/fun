@@ -10,9 +10,7 @@ import (
 var itoa = strconv.Itoa
 var strlen = func(s string) int { return len(s) }
 var izero = func() int { return 0 }
-var fzero = func() float32 { return 0 }
 var imul10 = func(a int) int { return a * 10 }
-var fmul3p3 = func(a int) float32 { return float32(a) * 3.3 }
 var sempty = func() string { return "" }
 var isqrt = func(a int) Maybe[int] {
 	if a < 0 {
@@ -28,9 +26,9 @@ func TestOf(t *testing.T) {
 	y2 := 2
 	nil1 := (*int)(nil)
 	nil2 := (*int)(nil)
-	assert.Equal(t, Of(&x1), Of(&y1))
-	assert.Equal(t, Of(&x2), Of(&y2))
-	assert.Equal(t, Of(nil1), Of(nil2))
+	assert.Equal(t, Of(&y1), Of(&x1))
+	assert.Equal(t, Of(&y2), Of(&x2))
+	assert.Equal(t, Of(nil2), Of(nil1))
 	assert.NotEqual(t, Of(&x1), Of(&x2))
 	assert.NotEqual(t, Of(&y1), Of(&y2))
 	assert.NotEqual(t, Of(&x1), Of(nil1))
@@ -43,10 +41,10 @@ func TestValue(t *testing.T) {
 	y2 := 2
 	nil1 := (*int)(nil)
 	nil2 := (*int)(nil)
-	assert.Equal(t, Some(x1), Some(y1))
-	assert.Equal(t, Some(x2), Some(y2))
-	assert.Equal(t, Some(nil1), Some(nil2))
-	assert.Equal(t, Some(&nil1), Some(&nil2))
+	assert.Equal(t, Some(y1), Some(x1))
+	assert.Equal(t, Some(y2), Some(x2))
+	assert.Equal(t, Some(nil2), Some(nil1))
+	assert.Equal(t, Some(&nil2), Some(&nil1))
 	assert.NotEqual(t, Some(&x1), Some(&x2))
 	assert.NotEqual(t, Some(&y1), Some(&y2))
 	assert.NotEqual(t, Some(&x1), Some(nil1))
@@ -54,7 +52,7 @@ func TestValue(t *testing.T) {
 
 func TestNothing(t *testing.T) {
 	assert.Equal(t, None[int](), None[int]())
-	assert.Equal(t, None[int](), None[string]())
+	assert.Equal(t, None[string](), None[int]())
 }
 
 func TestValue_IsNone(t *testing.T) {
@@ -70,21 +68,21 @@ func TestValue_IsSome(t *testing.T) {
 }
 
 func TestValue_Value(t *testing.T) {
-	assert.Equal(t, Some(42).Value(), 42)
-	assert.Equal(t, Some("hello").Value(), "hello")
-	assert.Equal(t, Some[any](nil).Value(), nil)
+	assert.Equal(t, 42, Some(42).Value())
+	assert.Equal(t, "hello", Some("hello").Value())
+	assert.Equal(t, nil, Some[any](nil).Value())
 }
 
 func TestValue_ToNullable(t *testing.T) {
-	assert.Equal(t, *Some(42).ToNullable(), 42)
-	assert.Equal(t, *Some("hello").ToNullable(), "hello")
-	assert.Equal(t, *Some[any](nil).ToNullable(), nil)
+	assert.Equal(t, 42, *Some(42).ToNullable())
+	assert.Equal(t, "hello", *Some("hello").ToNullable())
+	assert.Equal(t, nil, *Some[any](nil).ToNullable())
 }
 
 func TestValue_ValueOr(t *testing.T) {
-	assert.Equal(t, Some(42).ValueOr(55), 42)
-	assert.Equal(t, Some("hello").ValueOr("goodbye"), "hello")
-	assert.Equal(t, Some[any](nil).ValueOr("else"), nil)
+	assert.Equal(t, 42, Some(42).ValueOr(55))
+	assert.Equal(t, "hello", Some("hello").ValueOr("goodbye"))
+	assert.Equal(t, nil, Some[any](nil).ValueOr("else"))
 }
 
 func TestNothing_IsNone(t *testing.T) {
@@ -118,31 +116,31 @@ func TestNothing_Value(t *testing.T) {
 }
 
 func TestNothing_ValueOr(t *testing.T) {
-	assert.Equal(t, None[int]().ValueOr(42), 42)
-	assert.Equal(t, None[string]().ValueOr("hello"), "hello")
-	assert.Equal(t, None[any]().ValueOr(nil), nil)
+	assert.Equal(t, 42, None[int]().ValueOr(42))
+	assert.Equal(t, "hello", None[string]().ValueOr("hello"))
+	assert.Equal(t, nil, None[any]().ValueOr(nil))
 }
 
 func TestFoldL(t *testing.T) {
-	assert.Equal(t, FoldL(Some(42), "", itoa), "42")
-	assert.Equal(t, FoldL(None[int](), "", itoa), "")
-	assert.Equal(t, FoldL(Some("hello"), 0, strlen), 5)
-	assert.Equal(t, FoldL(None[string](), 0, strlen), 0)
+	assert.Equal(t, "42", FoldL(Some(42), "", itoa))
+	assert.Equal(t, "", FoldL(None[int](), "", itoa))
+	assert.Equal(t, 5, FoldL(Some("hello"), 0, strlen))
+	assert.Equal(t, 0, FoldL(None[string](), 0, strlen))
 }
 
 func TestFoldR(t *testing.T) {
-	assert.Equal(t, FoldR(Some(42), sempty, itoa), "42")
-	assert.Equal(t, FoldR(None[int](), sempty, itoa), "")
-	assert.Equal(t, FoldR(Some("hello"), izero, strlen), len("hello"))
-	assert.Equal(t, FoldR(None[string](), izero, strlen), 0)
+	assert.Equal(t, "42", FoldR(Some(42), sempty, itoa))
+	assert.Equal(t, "", FoldR(None[int](), sempty, itoa))
+	assert.Equal(t, len("hello"), FoldR(Some("hello"), izero, strlen))
+	assert.Equal(t, 0, FoldR(None[string](), izero, strlen))
 }
 
 func TestBind(t *testing.T) {
-	assert.Equal(t, Bind(Some(4), isqrt), Some(2))
-	assert.Equal(t, Bind(Some(-4), isqrt), None[int]())
+	assert.Equal(t, Some(2), Bind(Some(4), isqrt))
+	assert.Equal(t, None[int](), Bind(Some(-4), isqrt))
 }
 
 func TestMap(t *testing.T) {
-	assert.Equal(t, Map(Some(42), imul10), Some(420))
-	assert.Equal(t, Map(Some(42), itoa), Some("42"))
+	assert.Equal(t, Some(420), Map(Some(42), imul10))
+	assert.Equal(t, Some("42"), Map(Some(42), itoa))
 }
